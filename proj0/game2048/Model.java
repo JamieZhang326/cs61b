@@ -94,10 +94,10 @@ public class Model extends Observable {
         setChanged();
     }
 
-    public void handleColumn(int c)
+    public boolean handleColumn(int c) // return changed
     {
         int pre=0, cnt=0;
-        boolean flag = false; // 第一个有了就是true
+        boolean changed = false; // 第一个有了就是true
         boolean merged = false;
         for(int r=board.size()-1; r>=0; r--)
         {
@@ -105,32 +105,43 @@ public class Model extends Observable {
             {
                 continue;
             }
-            if(!flag)
+            if(pre==0)
             {
                 pre = board.tile(c, r).value();
-                flag = true;
+//                flag = true;
                 cnt++;
                 Tile tile = board.tile(c,r);
-                board.move(c, 4-cnt, tile);
+                if(4-cnt!=r)
+                {
+                    board.move(c, 4-cnt, tile);
+                    changed = true;
+                }
                 continue;
             }
-            if(board.tile(c, r).value()!=pre || merged)
+            if(board.tile(c, r).value()!=pre)
             {
                 pre = board.tile(c, r).value();
                 cnt++;
                 Tile tile = board.tile(c,r);
-                board.move(c, 4-cnt, tile);
+                if(4-cnt!=r)
+                {
+                    board.move(c, 4-cnt, tile);
+                    changed = true;
+                }
+//                board.move(c, 4-cnt, tile);
                 continue;
             }
-            if(!merged && board.tile(c, r).value()==pre)//board.tile(c, r-1).value())
+            if(board.tile(c, r).value()==pre)//board.tile(c, r-1).value())
             {
                 Tile tile = board.tile(c,r);
                 score += pre*2;
                 board.move(c, 4-cnt, tile);
-                merged = true;
+                pre = 0;
+                changed = true;
+                continue;
             }
-
         }
+        return changed;
     }
 
 
@@ -169,11 +180,11 @@ public class Model extends Observable {
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
 
-        handleColumn(0);
-        handleColumn(1);
-        handleColumn(2);
-        handleColumn(3);
-        changed  = true;
+        boolean c1 = handleColumn(0);
+        boolean c2 = handleColumn(1);
+        boolean c3 = handleColumn(2);
+        boolean c4 = handleColumn(3);
+        changed  = c1||c2||c3||c4;
 
         if(side!=Side.NORTH) {
             board.setViewingPerspective(Side.NORTH);
