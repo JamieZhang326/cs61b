@@ -94,6 +94,49 @@ public class Model extends Observable {
         setChanged();
     }
 
+    public void handleColumn(int c)
+    {
+        int pre=0, cnt=0;
+        boolean flag = false; // 第一个有了就是true
+        boolean merged = false;
+        for(int r=board.size()-1; r>=0; r--)
+        {
+            if(board.tile(c, r)==null)
+            {
+                continue;
+            }
+            if(!flag)
+            {
+                pre = board.tile(c, r).value();
+                flag = true;
+                cnt++;
+                Tile tile = board.tile(c,r);
+                board.move(c, 4-cnt, tile);
+                continue;
+            }
+            if(board.tile(c, r).value()!=pre || merged)
+            {
+                pre = board.tile(c, r).value();
+                cnt++;
+                Tile tile = board.tile(c,r);
+                board.move(c, 4-cnt, tile);
+                continue;
+            }
+            if(!merged && board.tile(c, r).value()==pre)//board.tile(c, r-1).value())
+            {
+                Tile tile = board.tile(c,r);
+                score += pre*2;
+                board.move(c, 4-cnt, tile);
+                merged = true;
+            }
+
+        }
+    }
+
+
+
+
+
     /** Tilt the board toward SIDE. Return true iff this changes the board.
      *
      * 1. If two Tile objects are adjacent in the direction of motion and have
@@ -113,6 +156,12 @@ public class Model extends Observable {
         // TODO: Modify this.board (and perhaps this.score) to account
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
+
+        handleColumn(0);
+        handleColumn(1);
+        handleColumn(2);
+        handleColumn(3);
+        changed  = true;
 
         checkGameOver();
         if (changed) {
