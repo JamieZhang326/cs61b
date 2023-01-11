@@ -161,7 +161,6 @@ public class Model extends Observable {
      *    and the trailing tile does not.
      * */
     public boolean tilt(Side side) {
-        System.out.print(side);
         if(side==Side.SOUTH)
         {
             board.setViewingPerspective(Side.SOUTH);
